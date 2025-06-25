@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import axios, { getWithAuth, postWithAuth } from "../../services/api";
 import type { IWorkflow, IWorkflowLog } from "./model/dashboard.model";
 import WorkflowCard from "../../components/WorkflowCard";
@@ -34,13 +34,11 @@ const Dashboard = () => {
   /**search query*/
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  /**lazy loading in workflows */
+  /**loading in workflows */
   const [workFlowsLoading, setWorkflowsLoading] = useState(false);
-  const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
 
   const fetchWorkflows = async (query: string = "") => {
-    if (workFlowsLoading || !hasMore) return;
+    if (workFlowsLoading) return;
 
     try {
       setWorkflowsLoading(true);
@@ -149,25 +147,31 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="max-h-[calc(100vh-200px)] overflow-y-auto grid grid-cols-1 md:grid-cols-1 gap-4">
-            {workflows?.map((workflow, index) => {
-              return (
-                <div key={workflow.id}>
-                  <WorkflowCard
-                    workflow={workflow}
-                    onTrigger={handleTrigger}
-                    onViewLogs={handleViewLogs}
-                    onDelete={handleDelete}
-                  />
-                </div>
-              );
-            })}
+          <div className="overflow-y-auto overflow-x-hidden grid grid-cols-2 md:grid-cols-1 gap-4">
+            {workflows?.length ? (
+              workflows?.map((workflow) => {
+                return (
+                  <div key={workflow.id}>
+                    <WorkflowCard
+                      workflow={workflow}
+                      onTrigger={handleTrigger}
+                      onViewLogs={handleViewLogs}
+                      onDelete={handleDelete}
+                    />
+                  </div>
+                );
+              })
+            ) : (
+              <div>No workflows found</div>
+            )}
             {workFlowsLoading && (
               <p className="text-white text-center col-span-full py-4">
                 Loading...
               </p>
             )}
           </div>
+
+          {/* workflow logs modal */}
           {selectedWorkflowId && (
             <ViewLogsModal
               isOpen={showLogsModal}

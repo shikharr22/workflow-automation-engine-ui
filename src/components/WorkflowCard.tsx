@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Terminal, Workflow, X, Zap } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Terminal,
+  Workflow,
+  X,
+  Zap,
+} from "lucide-react";
 import type { IWorkflow } from "../pages/Dashboard/model/dashboard.model";
 
 interface WorkflowCardProps {
@@ -16,6 +23,7 @@ const WorkflowCard = ({
   onDelete,
 }: WorkflowCardProps) => {
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showActions, setShowActions] = useState(false);
 
   const handleDelete = () => {
     setShowConfirm(false);
@@ -98,17 +106,52 @@ const WorkflowCard = ({
           onClick={() => onTrigger(workflow.id)}
           className="px-2 py-1 rounded transition bg-transparent text-white flex items-center gap-1 hover:bg-slate-800 text-sm"
         >
-          <Zap className="w-3 h-3" />
-          <span className="align-middle">Trigger</span>
+          <Zap className="w-4 h-4" />
+          <span className="align-middle">Run</span>
         </button>
         <button
           onClick={() => onViewLogs(workflow.id)}
           className="px-2 py-1 rounded transition bg-transparent text-white flex items-center gap-1 hover:bg-slate-800 text-sm"
         >
-          <Terminal className="w-3 h-3" />
-          <span className="align-middle">View logs</span>
+          <Terminal className="w-4 h-4" />
+          <span className="align-middle">Logs</span>
+        </button>
+        <button
+          onClick={() => setShowActions((prev) => !prev)}
+          className="px-2 py-1 rounded transition bg-transparent text-white flex items-center gap-1 hover:bg-slate-800 text-sm"
+        >
+          <span className="align-middle">Actions</span>
+          {showActions ? (
+            <ChevronUp className="w-4 h-4" />
+          ) : (
+            <ChevronDown className="w-4 h-4" />
+          )}
         </button>
       </div>
+
+      {/* actions section */}
+      {showActions ? (
+        <div className="mt-3 w-full bg-slate-900 rounded-lg p-3 border border-slate-800">
+          <div className="text-xs font-semibold text-slate-400 mb-2">
+            Actions
+          </div>
+          {Array.isArray(workflow.actions) && workflow.actions.length > 0 ? (
+            <ul className="list-disc list-inside space-y-1 text-left">
+              {workflow.actions.map((action: any, idx: number) => (
+                <li key={idx} className="text-sm text-white text-left">
+                  {action.type && (
+                    <span className="ml-2 text-xs text-slate-400">
+                      ({action.type})
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="text-xs text-slate-500">No actions defined.</div>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 };

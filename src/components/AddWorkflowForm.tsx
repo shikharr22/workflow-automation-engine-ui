@@ -137,7 +137,7 @@ const AddWorkflowForm = ({ isOpen, onClose, onSuccess }: Props) => {
                 <SingleSelect
                   className="w-full border px-2 py-1 rounded"
                   value={action?.type}
-                  onChange={(value) =>
+                  onChange={(value: unknown) =>
                     handleTypeChange(index, value as WorkflowAction["type"])
                   }
                   options={actionTypes.map((type) => ({
