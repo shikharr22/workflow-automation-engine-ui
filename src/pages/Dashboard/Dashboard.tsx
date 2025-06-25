@@ -113,21 +113,21 @@ const Dashboard = () => {
       </div>
       <main className="flex flex-col lg:flex-row gap-6 p-6 flex-1">
         {/* Left Column - Add workflow */}
-        <section className="lg:w-1/3 w-full flex flex-col gap-4">
+        <section className="lg:w-1/3 w-full flex flex-col gap-4 p-2">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-semibold uppercase">User options</h2>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="w-1/3 flex items-center gap-2 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-800 text-white px-4 py-2 rounded hover:brightness-110 transition"
+            className="w-3/4 flex items-center gap-2 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-800 text-white px-4 py-2 rounded hover:brightness-110 transition"
           >
             <Plus />
-            Workflow
+            Add a new workflow
           </button>
         </section>
 
         {/* Middle Column – Workflows */}
-        <section className="lg:w-1/3 w-full flex flex-col gap-4">
+        <section className="lg:w-1/3 w-full flex flex-col gap-4 p-2">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-semibold uppercase">Your workflows</h2>
             <div className="flex justify-end">
@@ -147,7 +147,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="overflow-y-auto overflow-x-hidden grid grid-cols-2 md:grid-cols-1 gap-4">
+          <div className="overflow-y-auto overflow-x-hidden grid grid-cols-1 gap-4 p-2">
             {workflows?.length ? (
               workflows?.map((workflow) => {
                 return (
@@ -182,7 +182,7 @@ const Dashboard = () => {
         </section>
 
         {/* Right Column – Recent Logs */}
-        <section className="lg:w-1/3 w-full bg-white">
+        <section className="lg:w-1/3 w-full bg-white p-2">
           <RecentLogs
             logs={logs}
             isLogsLoading={isLogsLoading}

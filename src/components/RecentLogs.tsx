@@ -13,63 +13,72 @@ const RecentLogs = ({
   onLogsRefresh,
 }: RecentLogsProps) => {
   return (
-    <>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold uppercase">Recent executions</h2>
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold uppercase font-mono">
+          Recent Executions
+        </h2>
         <RotateCw
           onClick={() => onLogsRefresh()}
-          className="w-4 h-4 cursor-pointer"
+          className="w-5 h-5 text-white cursor-pointer hover:rotate-180 transition-transform duration-300"
         />
       </div>
-      <div className="rounded-lg shadow p-4 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-800">
+
+      {/* Log Container */}
+      <div className="space-y-4 max-h-[calc(100vh-250px)] overflow-y-auto pr-1">
         {isLogsLoading ? (
-          <p className="w-full min-h-screen text-gray-400 font-mono">
-            Refreshing logs...
-          </p>
+          <p className="text-gray-400 font-mono">Refreshing logs...</p>
         ) : logs.length === 0 ? (
           <p className="text-gray-400 font-mono">No recent logs found.</p>
         ) : (
-          <ul className="divide-y divide-slate-700 overflow-y-auto font-mono text-sm max-h-96">
-            {logs.map((log) => (
-              <li key={log.id} className="py-3">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex flex-col justify-start text-left text-white space-y-1">
-                    <p className="font-bold text-blue-300">
-                      {log.workflowName ?? ""}
-                    </p>
-                    <p className="font-semibold text-purple-300">
+          logs.map((log) => (
+            <div
+              key={log.id}
+              className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-800 rounded-xl p-4 shadow"
+            >
+              {/* Top Row */}
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex flex-col space-y-1 text-left font-mono text-white">
+                  <span className="text-lg font-semibold text-blue-300">
+                    {log.workflowName}
+                  </span>
+                  <span className="text-xs text-slate-400">
+                    Action:{" "}
+                    <span className="text-purple-300 font-medium">
                       {log.actionType}
-                    </p>
-                    <p className="text-sm text-slate-300">{log.message}</p>
-                    <p className="text-xs text-slate-400">
-                      {new Date(log.createdAt).toLocaleString(undefined, {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-1 text-xs font-semibold">
-                    {log.status === "success" ? (
-                      <span className="flex items-center text-green-400">
-                        <CheckCircle size={16} className="mr-1" />
-                      </span>
-                    ) : (
-                      <span className="flex items-center text-red-400">
-                        <XCircle size={16} className="mr-1" />
-                      </span>
-                    )}
-                  </div>
+                    </span>
+                  </span>
                 </div>
-              </li>
-            ))}
-          </ul>
+                <div>
+                  {log.status === "success" ? (
+                    <CheckCircle size={20} className="text-green-400" />
+                  ) : (
+                    <XCircle size={20} className="text-red-400" />
+                  )}
+                </div>
+              </div>
+
+              {/* Message */}
+              <div className="text-sm text-slate-300 text-left mb-2 font-mono">
+                {log.message}
+              </div>
+
+              {/* Timestamp */}
+              <div className="text-xs text-slate-500 font-mono">
+                {new Date(log.createdAt).toLocaleString(undefined, {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </div>
+            </div>
+          ))
         )}
       </div>
-    </>
+    </div>
   );
 };
 

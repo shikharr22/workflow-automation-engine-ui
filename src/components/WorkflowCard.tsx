@@ -31,13 +31,11 @@ const WorkflowCard = ({
   };
 
   return (
-    <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-800 rounded-xl shadow-lg p-5 flex flex-col justify-between transition hover:shadow-xl hover:scale-[1.01] duration-200 items-start text-white relative border border-slate-800/60 backdrop-blur-sm">
-      {/* Decorative glow */}
-      <div className="absolute -inset-1 rounded-xl pointer-events-none bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 blur-lg opacity-70 z-0" />
-      {/* Delete Icon in top-right */}
+    <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-800 border border-slate-800/60 backdrop-blur-sm rounded-lg shadow p-3 flex flex-col gap-3 transition hover:shadow-lg hover:scale-[1.01] duration-200 text-white relative border border-slate-800/70">
+      {/* Delete Icon */}
       <button
         onClick={() => setShowConfirm(true)}
-        className="absolute top-3 right-3 text-white hover:text-red-500 transition bg-transparent p-1 rounded"
+        className="absolute top-2 right-2 bg-transparent text-slate-400 hover:text-red-500 transition p-1 rounded"
         aria-label="Delete workflow"
         style={{ lineHeight: 0 }}
       >
@@ -47,20 +45,20 @@ const WorkflowCard = ({
       {/* Confirmation Dialog */}
       {showConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-md p-4 shadow-xl flex flex-col items-center min-w-[260px] max-w-xs">
-            <p className="text-gray-900 mb-3 text-center text-sm">
-              Are you sure you want to delete <b>{workflow.name}</b>?
+          <div className="bg-white rounded p-4 shadow flex flex-col items-center min-w-[220px] max-w-xs">
+            <p className="text-gray-900 mb-2 text-center text-sm">
+              Delete <b>{workflow.name}</b>?
             </p>
             <div className="flex gap-2">
               <button
                 onClick={handleDelete}
-                className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700 transition text-sm"
+                className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700 transition text-xs"
               >
                 Delete
               </button>
               <button
                 onClick={() => setShowConfirm(false)}
-                className="px-3 py-1 rounded bg-gray-200 text-gray-800 hover:bg-gray-300 transition text-sm"
+                className="px-3 py-1 rounded bg-gray-200 text-gray-800 hover:bg-gray-300 transition text-xs"
               >
                 Cancel
               </button>
@@ -69,58 +67,50 @@ const WorkflowCard = ({
         </div>
       )}
 
-      <div className="w-full flex flex-col justify-left items-left">
-        <h3 className="text-lg font-semibold flex items-center gap-4 text-left">
-          <Workflow className="w-4 h-4" />
-          {workflow.name}
-        </h3>
-        <div className="flex flex-col items-start mt-4 w-full gap-1">
-          <div className="grid grid-cols-2 w-full gap-x-4">
-            <span className="text-xs font-medium text-slate-400 text-left">
-              Triggers on:
-            </span>
-            <span className="text-sm text-white text-left">
-              {workflow.trigger}
-            </span>
-          </div>
-          <div className="w-full my-1 border-t border-slate-700" />
-          <div className="grid grid-cols-2 w-full gap-x-4">
-            <span className="text-xs font-medium text-slate-400 text-left">
-              Created on:
-            </span>
-            <span className="text-xs text-white text-left">
-              {new Date(workflow.createdAt).toLocaleDateString(undefined, {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </span>
-          </div>
+      <div className="flex items-center gap-2">
+        <Workflow className="w-4 h-4 text-indigo-400" />
+        <h3 className="text-base font-medium truncate">{workflow.name}</h3>
+      </div>
+
+      <div className="flex flex-col gap-1 text-xs">
+        <div className="flex items-center gap-2">
+          <span className="text-slate-400">Trigger:</span>
+          <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
+            {workflow.trigger}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-slate-400">Created:</span>
+          <span className="px-2 py-0.5 bg-slate-800 text-slate-300 rounded">
+            {new Date(workflow.createdAt).toLocaleDateString(undefined, {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })}
+          </span>
         </div>
       </div>
 
-      <div className="mt-5 flex justify-start gap-2 w-full">
+      <div className="flex justify-end gap-1 mt-2">
         <button
           onClick={() => onTrigger(workflow.id)}
-          className="px-2 py-1 rounded transition bg-transparent text-white flex items-center gap-1 hover:bg-slate-800 text-sm"
+          className="px-2 py-1 rounded bg-slate-800 text-white flex items-center gap-1 hover:bg-indigo-700 text-xs"
         >
           <Zap className="w-4 h-4" />
-          <span className="align-middle">Run</span>
+          Run
         </button>
         <button
           onClick={() => onViewLogs(workflow.id)}
-          className="px-2 py-1 rounded transition bg-transparent text-white flex items-center gap-1 hover:bg-slate-800 text-sm"
+          className="px-2 py-1 rounded bg-slate-800 text-white flex items-center gap-1 hover:bg-indigo-700 text-xs"
         >
           <Terminal className="w-4 h-4" />
-          <span className="align-middle">Logs</span>
+          Logs
         </button>
         <button
           onClick={() => setShowActions((prev) => !prev)}
-          className="px-2 py-1 rounded transition bg-transparent text-white flex items-center gap-1 hover:bg-slate-800 text-sm"
+          className="px-2 py-1 rounded bg-slate-800 text-white flex items-center gap-1 hover:bg-indigo-700 text-xs"
         >
-          <span className="align-middle">Actions</span>
+          Actions
           {showActions ? (
             <ChevronUp className="w-4 h-4" />
           ) : (
@@ -129,20 +119,17 @@ const WorkflowCard = ({
         </button>
       </div>
 
-      {/* actions section */}
-      {showActions ? (
-        <div className="mt-3 w-full bg-slate-900 rounded-lg p-3 border border-slate-800">
-          <div className="text-xs font-semibold text-slate-400 mb-2">
+      {showActions && (
+        <div className="mt-2 w-full bg-slate-800 rounded p-2 border border-slate-700">
+          <div className="text-xs font-semibold text-slate-400 mb-1">
             Actions
           </div>
           {Array.isArray(workflow.actions) && workflow.actions.length > 0 ? (
-            <ul className="list-disc list-inside space-y-1 text-left">
+            <ul className="list-disc list-inside space-y-0.5 text-left">
               {workflow.actions.map((action: any, idx: number) => (
-                <li key={idx} className="text-sm text-white text-left">
+                <li key={idx} className="text-xs text-white">
                   {action.type && (
-                    <span className="ml-2 text-xs text-slate-400">
-                      ({action.type})
-                    </span>
+                    <span className="ml-1 text-slate-400">({action.type})</span>
                   )}
                 </li>
               ))}
@@ -151,7 +138,7 @@ const WorkflowCard = ({
             <div className="text-xs text-slate-500">No actions defined.</div>
           )}
         </div>
-      ) : null}
+      )}
     </div>
   );
 };
