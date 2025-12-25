@@ -5,12 +5,18 @@ export interface IWorkflow {
   actions: WorkflowAction[];
   userId: string;
   createdAt: string;
+  isAI?: boolean;
+  prompt?: string;
+  aiContext?: any;
 }
 
 export interface ICreateWorkflowPayload {
   name: string;
   trigger: string;
   actions: unknown;
+  isAI?: boolean;
+  prompt?: string;
+  aiContext?: any;
 }
 
 export interface IWorkflowLog {
@@ -32,4 +38,5 @@ export type WorkflowAction =
       type: "db";
       query: string;
       dbConfig: { host: string; user: string; password: string; db: string };
-    };
+    }
+  | { type: "ai-agent"; prompt: string; context?: any };

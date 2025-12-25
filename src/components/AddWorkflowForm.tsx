@@ -3,7 +3,7 @@ import { Dialog } from "@headlessui/react";
 import { postWithAuth } from "../services/api";
 import Input from "./Input";
 import SingleSelect from "./SingleSelect";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Bot, Settings } from "lucide-react";
 
 type ActionFormState =
   | { type: "email"; to?: string; subject?: string; body?: string }
@@ -41,6 +41,11 @@ const AddWorkflowForm = ({ isOpen, onClose, onSuccess }: Props) => {
   // Use ActionFormState instead of any
   const [actions, setActions] = useState<ActionFormState[]>([]);
   const [error, setError] = useState("");
+
+  // AI workflow state
+  const [isAI, setIsAI] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiContext, setAiContext] = useState("");
 
   const handleAddAction = () => {
     setActions((prev) => [...prev, { type: "email" }]);
@@ -282,25 +287,38 @@ const AddWorkflowForm = ({ isOpen, onClose, onSuccess }: Props) => {
     setError("");
 
     try {
-      const payload = {
-        name,
-        trigger,
-        actions: actions.map((action) => {
-          if (action.type === "db") {
-            return {
-              type: action.type,
-              query: action.query,
-              dbConfig: action.dbConfig,
-            };
+      const payload = isAI
+        ? {
+            name,
+            trigger,
+            isAI: true,
+            prompt: aiPrompt,
+            aiContext: aiContext ? JSON.parse(aiContext) : {},
+            actions: [], // AI workflows start with empty actions
           }
-          return { ...action };
-        }),
-      };
+        : {
+            name,
+            trigger,
+            isAI: false,
+            actions: actions.map((action) => {
+              if (action.type === "db") {
+                return {
+                  type: action.type,
+                  query: action.query,
+                  dbConfig: action.dbConfig,
+                };
+              }
+              return { ...action };
+            }),
+          };
 
       await postWithAuth("/workflows", payload);
       setName("");
       setTrigger("");
       setActions([]);
+      setIsAI(false);
+      setAiPrompt("");
+      setAiContext("");
       onClose();
       onSuccess();
     } catch (err) {
@@ -327,6 +345,36 @@ const AddWorkflowForm = ({ isOpen, onClose, onSuccess }: Props) => {
             Add Workflow
           </Dialog.Title>
 
+          {/* Workflow Type Toggle */}
+          <div className="mb-4">
+            <div className="flex space-x-2 bg-slate-800 rounded-lg p-1">
+              <button
+                type="button"
+                onClick={() => setIsAI(false)}
+                className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition ${
+                  !isAI
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                <Settings className="w-4 h-4" />
+                Traditional
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsAI(true)}
+                className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition ${
+                  isAI
+                    ? "bg-purple-600 text-white"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                <Bot className="w-4 h-4" />
+                AI Powered
+              </button>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4 font-mono">
             <Input
               type="text"
@@ -343,40 +391,86 @@ const AddWorkflowForm = ({ isOpen, onClose, onSuccess }: Props) => {
               required
             />
 
-            {actions.map((action, index) => (
-              <div
-                key={index}
-                className="bg-slate-900 border border-slate-700 rounded-lg p-3 space-y-2"
-              >
-                <SingleSelect
-                  value={action.type}
-                  onChange={(e) =>
-                    handleActionTypeChange(index, e.target.value)
-                  }
-                  options={actionTypes}
-                  className="w-full bg-white text-black"
-                />
-                {renderActionFields(action, index)}
-              </div>
-            ))}
+            {isAI ? (
+              // AI Workflow Form
+              <div className="space-y-4">
+                <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4">
+                  <h3 className="text-purple-300 font-semibold mb-3 flex items-center gap-2">
+                    <Bot className="w-5 h-5" />
+                    AI Workflow Configuration
+                  </h3>
+                  <p className="text-sm text-purple-200 mb-4">
+                    Describe what you want this workflow to do in natural
+                    language. The AI will intelligently select and execute the
+                    appropriate tools.
+                  </p>
 
-            <button
-              type="button"
-              onClick={handleAddAction}
-              className="flex items-center gap-1 text-xs border border-white rounded px-2 py-1 text-black transition"
-            >
-              <Plus className="w-4 h-4" />
-              Add Action
-            </button>
+                  <textarea
+                    placeholder="e.g., 'Send a welcome email to new users and notify the team on Slack'"
+                    value={aiPrompt}
+                    onChange={(e) => setAiPrompt(e.target.value)}
+                    required
+                    className="w-full bg-slate-800 border border-slate-600 rounded-md px-3 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                    rows={3}
+                  />
+
+                  <div className="mt-3">
+                    <label className="block text-sm text-purple-200 mb-2">
+                      Context (Optional JSON)
+                    </label>
+                    <textarea
+                      placeholder='{"environment": "production", "user_type": "premium"}'
+                      value={aiContext}
+                      onChange={(e) => setAiContext(e.target.value)}
+                      className="w-full bg-slate-800 border border-slate-600 rounded-md px-3 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                      rows={2}
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              // Traditional Workflow Form
+              <div className="space-y-4">
+                {actions.map((action, index) => (
+                  <div
+                    key={index}
+                    className="bg-slate-900 border border-slate-700 rounded-lg p-3 space-y-2"
+                  >
+                    <SingleSelect
+                      value={action.type}
+                      onChange={(e) =>
+                        handleActionTypeChange(index, e.target.value)
+                      }
+                      options={actionTypes}
+                      className="w-full bg-white text-black"
+                    />
+                    {renderActionFields(action, index)}
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={handleAddAction}
+                  className="flex items-center gap-1 text-xs border border-white rounded px-2 py-1 hover:bg-white hover:text-black transition"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Action
+                </button>
+              </div>
+            )}
 
             {error && <p className="text-red-400 text-sm">{error}</p>}
 
             <div className="flex justify-end pt-4">
               <button
                 type="submit"
-                className="border border-white bg-transparent text-white px-4 py-2 text-sm rounded hover:bg-white hover:text-black transition"
+                className={`border px-4 py-2 text-sm rounded transition ${
+                  isAI
+                    ? "border-purple-500 bg-purple-600 text-white hover:bg-purple-700"
+                    : "border-blue-500 bg-blue-600 text-white hover:bg-blue-700"
+                }`}
               >
-                Create Workflow
+                Create {isAI ? "AI" : "Traditional"} Workflow
               </button>
             </div>
           </form>

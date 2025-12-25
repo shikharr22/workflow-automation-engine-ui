@@ -6,6 +6,8 @@ import {
   Workflow,
   X,
   Zap,
+  Bot,
+  Settings,
 } from "lucide-react";
 import type { IWorkflow } from "../pages/Dashboard/model/dashboard.model";
 
@@ -31,7 +33,13 @@ const WorkflowCard = ({
   };
 
   return (
-    <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-800 border border-slate-800/60 backdrop-blur-sm rounded-lg shadow p-3 flex flex-col gap-3 transition hover:shadow-lg hover:scale-[1.01] duration-200 text-white relative border border-slate-800/70">
+    <div
+      className={`bg-gradient-to-r backdrop-blur-sm rounded-lg shadow p-3 flex flex-col gap-3 transition hover:shadow-lg hover:scale-[1.01] duration-200 text-white relative border ${
+        workflow.isAI
+          ? "from-purple-950 via-purple-900 to-purple-800 border-purple-800/70"
+          : "from-slate-950 via-slate-900 to-slate-800 border-slate-800/70"
+      }`}
+    >
       {/* Delete Icon */}
       <button
         onClick={() => setShowConfirm(true)}
@@ -68,17 +76,50 @@ const WorkflowCard = ({
       )}
 
       <div className="flex items-center gap-2">
-        <Workflow className="w-4 h-4 text-indigo-400" />
+        {workflow.isAI ? (
+          <Bot className="w-4 h-4 text-purple-400" />
+        ) : (
+          <Workflow className="w-4 h-4 text-indigo-400" />
+        )}
         <h3 className="text-base font-medium truncate">{workflow.name}</h3>
+        {workflow.isAI && (
+          <span className="px-2 py-0.5 bg-purple-600 text-purple-100 rounded text-xs font-medium">
+            AI
+          </span>
+        )}
       </div>
 
       <div className="flex flex-col gap-1 text-xs">
         <div className="flex items-center gap-2">
+          <span className="text-slate-400">Type:</span>
+          <span
+            className={`px-2 py-0.5 rounded ${
+              workflow.isAI
+                ? "bg-purple-100 text-purple-700"
+                : "bg-blue-100 text-blue-700"
+            }`}
+          >
+            {workflow.isAI ? "AI Powered" : "Traditional"}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
           <span className="text-slate-400">Trigger:</span>
-          <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded">
+          <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded">
             {workflow.trigger}
           </span>
         </div>
+        {workflow.isAI && workflow.prompt && (
+          <div className="flex items-start gap-2 mt-1">
+            <span className="text-purple-400">Prompt:</span>
+            <span className="text-purple-200 text-xs flex-1 italic">
+              "
+              {workflow.prompt.length > 80
+                ? workflow.prompt.substring(0, 80) + "..."
+                : workflow.prompt}
+              "
+            </span>
+          </div>
+        )}
         <div className="flex items-center gap-2">
           <span className="text-slate-400">Created:</span>
           <span className="px-2 py-0.5 bg-slate-800 text-slate-300 rounded">
