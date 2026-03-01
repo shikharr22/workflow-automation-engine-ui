@@ -29,4 +29,10 @@ export const postWithAuth = async <T, D = unknown>(
   return response.data;
 };
 
+// DELETE request with auth
+export const deleteWithAuth = async <T>(url: string): Promise<T> => {
+  const response = await api.delete<T>(url, getAuthHeaders());
+  return response.data;
+};
+
 export default api;

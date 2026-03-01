@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import axios, { getWithAuth, postWithAuth } from "../../services/api";
+import { useEffect, useRef, useState } from "react";
+import { getWithAuth, postWithAuth, deleteWithAuth } from "../../services/api";
 import type { IWorkflow, IWorkflowLog } from "./model/dashboard.model";
 import WorkflowCard from "../../components/WorkflowCard";
 
@@ -34,6 +34,9 @@ const Dashboard = () => {
   /**search query*/
   const [searchQuery, setSearchQuery] = useState<string>("");
 
+  /**debounce timer ref */
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   /**loading in workflows */
   const [workFlowsLoading, setWorkflowsLoading] = useState(false);
 
@@ -46,7 +49,7 @@ const Dashboard = () => {
       const endpoint =
         query && query.trim() !== ""
           ? `/workflows?searchQuery=${query}`
-          : `workflows`;
+          : `/workflows`;
 
       const data = await getWithAuth<{ workflows: IWorkflow[] }>(endpoint);
       const newData = data?.workflows;
@@ -78,12 +81,7 @@ const Dashboard = () => {
   };
 
   const handleDelete = async (id: string) => {
-    const token = localStorage.getItem("token");
-    await axios.delete(`/workflows/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    await deleteWithAuth(`/workflows/${id}`);
     setWorkflows((prev) => prev.filter((w) => w.id !== id));
   };
 
@@ -136,11 +134,12 @@ const Dashboard = () => {
                 placeholder="Search workflows..."
                 value={searchQuery}
                 onChange={(e) => {
-                  setTimeout(() => {
-                    fetchWorkflows(e.target.value);
+                  const value = e.target.value;
+                  setSearchQuery(value);
+                  if (debounceRef.current) clearTimeout(debounceRef.current);
+                  debounceRef.current = setTimeout(() => {
+                    fetchWorkflows(value);
                   }, 500);
-
-                  setSearchQuery(e.target.value);
                 }}
                 className="w-1/3 border border-slate-300 px-2 py-1 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 transition-all w-60"
               />
